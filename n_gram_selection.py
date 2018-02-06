@@ -7,21 +7,27 @@ from nltk.stem import PorterStemmer
 
 
 select_word = 20
+match_percentage = .8
 
 
 with open('data/stop_words.txt', 'r') as f:
     stop_words = [line.rstrip() for line in f]
+
+def remove_words(original_words, removing_words):
+    filtered_words = original_words[:]  # make a copy of the word_list
+    for word in original_words:  # iterate over word_list
+        if word in removing_words:
+            filtered_words.remove(word)
+    return filtered_words
 
 def clean_str(text):
     text = re.sub("\d", "", text)           #remove decimal number
     translator = str.maketrans('', '', string.punctuation)   #remove punctuation
     text = text.translate(translator)
     text = word_tokenize(text)
-    filtered_words = text[:]  # make a copy of the word_list
-    for word in text:  # iterate over word_list
-        if word in stop_words:
-            filtered_words.remove(word)
-    return filtered_words
+    text = remove_words(text, stop_words)
+    return text
+
 
 def word_counter(text):
     text = text.lower()
@@ -75,24 +81,53 @@ def divide_single_label(selected_label, x, y):
             other_text.append(review)
     return selected_text, other_text
 
+def list_to_string(my_list):
+    my_string = ''
+    for text in my_list:
+        my_string += text
+        my_string += ' '
+    return my_string
 
-def useful_word_for_label(label, x, y):
-    selected_text_list, other_text_list = divide_single_label(label, x, y)
-    selected_text = ''
-    other_text = ''
+def get_useful_word(first_class, second_class):
+    text1 = ''
+    text2 = ''
+    for text in first_class:
+        text1 += text
+        text1 += ' '
 
-    for text in selected_text_list:
-        selected_text += text
-        selected_text += ' '
+    for text in second_class:
+        text2 += text
+        text2 += ' '
 
-    for text in other_text_list:
-        other_text += text
-        other_text += ' '
-
-    selected_count = word_counter(selected_text)
-    other_count = word_counter(other_text)
+    selected_count = word_counter(text1)
+    other_count = word_counter(text2)
     substracted_values = substract_word_count(selected_count, other_count)
     useful_words = OrderedDict(sorted(substracted_values.items(), key=lambda kv: kv[1], reverse=True))
     # print('useful words with count: ', useful_words)
     top_useful_words = list(useful_words.keys())[:select_word]
     return top_useful_words
+
+
+def useful_word_for_label(label, x, y):
+    selected_text_list, other_text_list = divide_single_label(label, x, y)
+    selected_text = ''
+    other_text = ''
+    return get_useful_word(selected_text_list, other_text_list)
+
+
+
+
+
+def common_word_pos_neg(pos, neg):
+    common_word_list = []
+    pos_count = word_counter(pos)
+    neg_count = word_counter(neg)
+
+    for word, count1 in pos_count.items():
+        if word in neg_count:
+            count2 = neg_count[word]
+            if count1 > count2:
+                if count2 > count1*match_percentage:
+                    common_word_list.append(word)
+
+    return common_word_list

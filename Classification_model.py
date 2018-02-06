@@ -2,6 +2,8 @@ import pandas as pd
 from gensim import models
 import n_gram_selection
 
+
+
 reviews = pd.read_excel('data/Mozilla_total.xlsx', sheet_name='Description')
 
 x = reviews['description'].values
