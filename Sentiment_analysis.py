@@ -7,7 +7,7 @@ with open('data/pos.txt') as f:
 with open('data/neg.txt') as f:
     neg = f.readlines()
 
-with open('data/stop_words.txt', 'r') as f:
+with open('data/english_stop_words.txt', 'r') as f:
     stop_words = [line.rstrip() for line in f]
 
 pos = n_gram_selection.list_to_string(pos)
@@ -22,7 +22,7 @@ text_of_labels.append(neg_useful_words)
 
 
 
-test_review = 'klein , charming in comedies like american pie and dead-on in election , delivers one of the saddest action hero performances ever witnessed .'
+test_review = 'this delicately observed story , deeply felt and masterfully stylized , is a triumph for its maverick director .'
 test_review = test_review.lower()
 test_review = n_gram_selection.clean_str(test_review)
 test_review = n_gram_selection.remove_words(test_review, common_words)

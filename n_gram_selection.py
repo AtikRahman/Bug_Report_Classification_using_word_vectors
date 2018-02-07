@@ -10,7 +10,7 @@ select_word = 20
 match_percentage = .8
 
 
-with open('data/stop_words.txt', 'r') as f:
+with open('data/english_stop_words.txt', 'r') as f:
     stop_words = [line.rstrip() for line in f]
 
 def remove_words(original_words, removing_words):
